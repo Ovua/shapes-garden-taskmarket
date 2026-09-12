@@ -1,6 +1,0 @@
-Shapes, Colours & Sorting Garden
-
-Live-ready, dependency-free educational web activity with shape recognition, colour matching, sorting, responsive UI, keyboard support, reduced-motion support, no tracking/PII, deterministic tests, educator guide and test report.
-
-Tests: npm test
-Run: npm start
