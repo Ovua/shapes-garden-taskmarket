@@ -1,0 +1,27 @@
+import assert from "node:assert/strict";
+import {
+  SHAPES,
+  COLOURS,
+  normaliseWord,
+  isMatch,
+  clampScore,
+  completionMessage,
+} from "./logic.js";
+let passed = 0;
+const t = (n, f) => {
+  f();
+  passed++;
+  console.log("✓", n);
+};
+t("four shapes", () => assert.equal(SHAPES.length, 4));
+t("four colours", () => assert.equal(COLOURS.length, 4));
+t("normalises case", () => assert.equal(normaliseWord(" Blue "), "blue"));
+t("matching", () => assert.equal(isMatch("RED", "red"), true));
+t("rejects mismatch", () => assert.equal(isMatch("red", "blue"), false));
+t("score floor", () => assert.equal(clampScore(-2, 5), 0));
+t("score cap", () => assert.equal(clampScore(9, 4), 4));
+t("ready msg", () => assert.equal(completionMessage(0, 0), "Ready to play!"));
+t("perfect msg", () => assert.match(completionMessage(4, 4), /Perfect/));
+t("brilliant msg", () => assert.match(completionMessage(3, 4), /Brilliant/));
+t("explore msg", () => assert.match(completionMessage(1, 4), /Keep exploring/));
+console.log(`GARDEN_TESTS_OK ${passed}`);
