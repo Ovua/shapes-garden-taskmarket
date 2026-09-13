@@ -1,126 +1,134 @@
-import {
-  SHAPES,
-  COLOURS,
-  isMatch,
-  clampScore,
-  completionMessage,
-} from "./logic.js";
-const $ = (s, r = document) => r.querySelector(s),
-  $$ = (s, r = document) => [...r.querySelectorAll(s)];
-let score = 0,
-  total = 0;
-const scoreEl = $("#score"),
-  messageEl = $("#message");
-function updateScore() {
-  score = clampScore(score, total);
-  scoreEl.textContent = `${score} / ${total}`;
-  messageEl.textContent = completionMessage(score, total);
+import { SHAPES, COLOURS, COUNTS, same, nextCountSequence, sortRule } from "./logic.js";
+
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+let soundOn = true;
+
+function speak(text){
+  if(!soundOn || !("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(new SpeechSynthesisUtterance(text));
 }
-function mark(el, ok, yes, no) {
-  el.classList.remove("success", "retry");
-  el.classList.add(ok ? "success" : "retry");
-  el.textContent = ok ? yes : no;
+function feedback(el, ok, good, retry){
+  el.className = "feedback " + (ok ? "good" : "try");
+  el.textContent = ok ? good : retry;
+  speak(el.textContent);
 }
-function initShape() {
-  const a = $("#shape-match"),
-    p = $(".prompt", a),
-    r = $(".result", a),
-    expected = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-  p.textContent = `Find the ${expected}`;
-  total++;
-  $$(".choice", a).forEach((b) =>
-    b.addEventListener("click", () => {
-      const ok = isMatch(expected, b.dataset.value);
-      if (ok && a.dataset.done !== "1") {
-        score++;
-        a.dataset.done = "1";
+
+$("#soundToggle").addEventListener("click",e=>{
+  soundOn = !soundOn;
+  e.currentTarget.setAttribute("aria-pressed", String(soundOn));
+  e.currentTarget.textContent = soundOn ? "🔊 Sound on" : "🔇 Sound off";
+});
+$("#resetAll").addEventListener("click",()=>location.reload());
+
+/* Shape matching */
+let shapeTarget = SHAPES[Math.floor(Math.random()*SHAPES.length)];
+const target = $("#shapeTarget");
+target.innerHTML = `<span class="shape ${shapeTarget}" aria-hidden="true"></span>`;
+target.setAttribute("aria-label", `Target shape: ${shapeTarget}`);
+$(".shape-choice").focus?.();
+
+$$(".shape-choice").forEach(btn=>btn.addEventListener("click",()=>{
+  const ok = same(btn.dataset.shape, shapeTarget);
+  feedback($("#shapeFeedback"), ok, "Yes! That matches.", "Good try. Look at the garden sign and try again.");
+}));
+
+/* Sorting */
+let sortMode = "shape";
+let selectedItem = null;
+const items = [
+  {id:"i1",shape:"circle",colour:"red",symbol:"●",colourWord:"Red"},
+  {id:"i2",shape:"square",colour:"blue",symbol:"■",colourWord:"Blue"},
+  {id:"i3",shape:"triangle",colour:"yellow",symbol:"▲",colourWord:"Yellow"}
+];
+
+function renderSort(){
+  const itemBox = $("#sortItems");
+  const basketBox = $("#sortBaskets");
+  itemBox.innerHTML = "";
+  basketBox.innerHTML = "";
+  selectedItem = null;
+
+  items.forEach(item=>{
+    const b=document.createElement("button");
+    b.className="sort-item";
+    b.dataset.id=item.id;
+    b.dataset.shape=item.shape;
+    b.dataset.colour=item.colour;
+    b.setAttribute("aria-label", `${item.colourWord} ${item.shape}`);
+    b.innerHTML = `<span aria-hidden="true">${item.symbol}</span> <span>${item.colourWord}</span>`;
+    b.addEventListener("click",()=>{
+      $$(".sort-item").forEach(x=>x.classList.remove("selected"));
+      b.classList.add("selected");
+      selectedItem=item;
+      $("#sortFeedback").textContent="Now choose a basket.";
+      speak("Now choose a basket.");
+    });
+    itemBox.appendChild(b);
+  });
+
+  const groups = sortMode==="shape" ? SHAPES : COLOURS;
+  groups.forEach(group=>{
+    const b=document.createElement("button");
+    b.className="basket";
+    b.dataset.group=group;
+    b.innerHTML = `<strong>${group}</strong><br><span>basket</span>`;
+    b.addEventListener("click",()=>{
+      if(!selectedItem){
+        feedback($("#sortFeedback"), false, "", "Choose an item first.");
+        return;
       }
-      mark(
-        r,
-        ok,
-        "Yes! That shape belongs here. 🌟",
-        "Almost — try another shape.",
-      );
-      updateScore();
-    }),
-  );
-}
-function initColour() {
-  const a = $("#colour-match"),
-    t = $(".colour-target", a),
-    r = $(".result", a),
-    expected = COLOURS[Math.floor(Math.random() * COLOURS.length)];
-  t.dataset.colour = expected;
-  t.setAttribute("aria-label", `Target colour: ${expected}`);
-  total++;
-  $$(".swatch", a).forEach((b) =>
-    b.addEventListener("click", () => {
-      const ok = isMatch(expected, b.dataset.value);
-      if (ok && a.dataset.done !== "1") {
-        score++;
-        a.dataset.done = "1";
+      const ok = same(sortRule(selectedItem, sortMode), group);
+      if(ok){
+        const el = $(`.sort-item[data-id="${selectedItem.id}"]`);
+        if(el) el.remove();
+        feedback($("#sortFeedback"), true, "That belongs there. Nice sorting!", "");
+        selectedItem = null;
+      }else{
+        feedback($("#sortFeedback"), false, "", "Almost. Try another basket.");
       }
-      mark(
-        r,
-        ok,
-        "Lovely colour match! 🎨",
-        "Good try — choose another colour.",
-      );
-      updateScore();
-    }),
-  );
+    });
+    basketBox.appendChild(b);
+  });
 }
-function initSorting() {
-  const a = $("#sorting"),
-    cards = $$(".sort-card", a),
-    zones = $$(".sort-zone", a),
-    r = $(".result", a),
-    solved = new Set();
-  total += cards.length;
-  function place(card, zone) {
-    const ok = card.dataset.group === zone.dataset.group;
-    if (ok && !solved.has(card.id)) {
-      solved.add(card.id);
-      score++;
-      card.classList.add("sorted");
-      zone.appendChild(card);
-    }
-    mark(r, ok, "Great sorting! 🌻", "That one grows in a different bed.");
-    updateScore();
+$$(".mode-btn").forEach(btn=>btn.addEventListener("click",()=>{
+  sortMode=btn.dataset.mode;
+  $$(".mode-btn").forEach(x=>{x.classList.remove("selected");x.setAttribute("aria-pressed","false")});
+  btn.classList.add("selected");btn.setAttribute("aria-pressed","true");
+  $("#sortFeedback").textContent="";
+  renderSort();
+}));
+renderSort();
+
+/* Counting */
+let countTarget = COUNTS[Math.floor(Math.random()*COUNTS.length)];
+const seq = $("#countSequence");
+
+function buildCount(){
+  seq.innerHTML="";
+  nextCountSequence(countTarget).forEach((n)=>{
+    const d=document.createElement("div");
+    d.className="count-dot";
+    d.textContent="🌼";
+    d.setAttribute("aria-label", `Flower ${n}`);
+    seq.appendChild(d);
+  });
+}
+function showCount(){
+  const dots=$$(".count-dot",seq);
+  dots.forEach(d=>d.classList.remove("active"));
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+    dots.forEach(d=>d.classList.add("active"));
+    speak(`Count ${countTarget}`);
+    return;
   }
-  cards.forEach((card) => {
-    card.draggable = true;
-    card.addEventListener("dragstart", (e) =>
-      e.dataTransfer.setData("text/plain", card.id),
-    );
-    card.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        card.classList.toggle("selected");
-        r.textContent = card.classList.contains("selected")
-          ? "Now choose a garden bed."
-          : "";
-      }
-    });
-  });
-  zones.forEach((z) => {
-    z.addEventListener("dragover", (e) => e.preventDefault());
-    z.addEventListener("drop", (e) => {
-      e.preventDefault();
-      const c = document.getElementById(e.dataTransfer.getData("text/plain"));
-      if (c) place(c, z);
-    });
-    z.addEventListener("click", () => {
-      const c = $(".sort-card.selected");
-      if (c) {
-        c.classList.remove("selected");
-        place(c, z);
-      }
-    });
-  });
+  dots.forEach((d,i)=>setTimeout(()=>d.classList.add("active"), i*450));
+  setTimeout(()=>speak(`Count ${countTarget}`), 120);
 }
-$("#reset").addEventListener("click", () => location.reload());
-initShape();
-initColour();
-initSorting();
-updateScore();
+buildCount();
+$("#showCount").addEventListener("click",showCount);
+$$(".count-choice").forEach(btn=>btn.addEventListener("click",()=>{
+  const ok = same(btn.dataset.count,countTarget);
+  feedback($("#countFeedback"), ok, `Yes, ${countTarget}!`, "Good try. Count the flowers and try again.");
+}));

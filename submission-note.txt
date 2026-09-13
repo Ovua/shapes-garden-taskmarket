@@ -1,6 +1,8 @@
-Shapes, Colours & Sorting Garden
+Taskmarket submission: Little Sorting Garden
 
-Live-ready, dependency-free educational web activity with shape recognition, colour matching, sorting, responsive UI, keyboard support, reduced-motion support, no tracking/PII, deterministic tests, educator guide and test report.
+Public source: https://github.com/Ovua/shapes-garden-taskmarket
 
-Tests: npm test
-Run: npm start
+Includes all three requested activities, accessible large controls, tap sorting alternative, optional speech after user gestures, mute + visual equivalents, responsive layouts, automated tests, educator guide, test report, license and screenshots.
+
+Run tests: npm test
+Run preview: npm start

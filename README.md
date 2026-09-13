@@ -1,21 +1,27 @@
-# Shapes, Colours & Sorting Garden
+# Little Sorting Garden
 
-Dependency-free accessible browser activity for early learners.
+Accessible early-years website for the Taskmarket **Shapes, Colours & Sorting Garden** bounty.
 
 ## Activities
-1. Shape hunt
-2. Colour matching
-3. Sorting cards into the correct garden bed
+1. Match circle / square / triangle.
+2. Sort by one property: shape or colour, using tap-select + tap-basket.
+3. Count 1–3 sequentially and match the collection.
 
-## Accessibility
-Keyboard operation, visible focus, ARIA live feedback, large touch targets, reduced-motion support, no audio dependency, and no accounts/tracking/PII.
+## Accessibility and privacy
+- 64px+ controls
+- keyboard-visible focus
+- non-colour-only labels/symbols
+- `prefers-reduced-motion`
+- visual equivalents for spoken prompts
+- speech only after a user gesture
+- mute control
+- unlimited retries, no timer or required score
+- no accounts, analytics, tracking, chat, uploads, PII or payments
 
 ## Run
 ```bash
 npm test
 npm start
 ```
-Open http://localhost:8080.
 
-## Railway
-Deploy this repository directly. The server honours Railway's `PORT` environment variable.
+Open `http://localhost:8080`.

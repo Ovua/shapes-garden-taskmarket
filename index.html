@@ -1,119 +1,102 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="theme-color" content="#f7f3e8" />
-    <title>Shapes, Colours & Sorting Garden</title>
-    <meta
-      name="description"
-      content="Accessible early-years activity for shapes, colours and sorting."
-    />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <a class="skip-link" href="#main">Skip to activities</a>
-    <header class="hero">
-      <div>
-        <p class="eyebrow">Little Garden Lab</p>
-        <h1>Shapes, Colours &amp; Sorting Garden</h1>
-        <p class="intro">
-          Three calm, playful activities for early learners. Tap, click, drag or
-          use the keyboard.
-        </p>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f1e6">
+  <title>Little Sorting Garden</title>
+  <meta name="description" content="A calm shapes, colours, sorting and counting activity for young children.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#activities">Skip to activities</a>
+
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Little Sorting Garden</p>
+      <h1>Play with shapes, colours &amp; counting</h1>
+      <p class="lead">Designed for a young child with an adult nearby. No reading, typing, timer or score is required.</p>
+    </div>
+    <div class="adult-controls" aria-label="Grown-up controls">
+      <button id="soundToggle" class="control" aria-pressed="true">🔊 Sound on</button>
+      <button id="resetAll" class="control">↻ Start over</button>
+    </div>
+  </header>
+
+  <main id="activities" class="layout">
+    <section class="card" id="shapeActivity" aria-labelledby="shapeTitle">
+      <div class="heading-row">
+        <span class="step">1</span>
+        <div>
+          <h2 id="shapeTitle">Shape matching</h2>
+          <p id="shapePrompt">Tap the shape that matches the garden sign.</p>
+        </div>
       </div>
-      <div class="score-card" aria-live="polite">
-        <span>Garden score</span><strong id="score">0 / 0</strong
-        ><small id="message">Ready to play!</small>
+
+      <div id="shapeTarget" class="target-box" aria-label="Target shape">
+        <span class="shape circle" aria-hidden="true"></span>
       </div>
-    </header>
-    <main id="main" class="grid">
-      <section id="shape-match" class="activity">
-        <div class="activity-head">
-          <span class="number">1</span>
-          <div>
-            <h2>Shape hunt</h2>
-            <p class="prompt">Find the shape</p>
-          </div>
+
+      <div class="big-grid" role="group" aria-label="Shape choices">
+        <button class="big-choice shape-choice" data-shape="circle" aria-label="Circle">
+          <span class="shape circle" aria-hidden="true"></span><span>●</span>
+        </button>
+        <button class="big-choice shape-choice" data-shape="square" aria-label="Square">
+          <span class="shape square" aria-hidden="true"></span><span>■</span>
+        </button>
+        <button class="big-choice shape-choice" data-shape="triangle" aria-label="Triangle">
+          <span class="shape triangle" aria-hidden="true"></span><span>▲</span>
+        </button>
+      </div>
+      <p class="feedback" id="shapeFeedback" aria-live="polite"></p>
+    </section>
+
+    <section class="card" id="sortActivity" aria-labelledby="sortTitle">
+      <div class="heading-row">
+        <span class="step">2</span>
+        <div>
+          <h2 id="sortTitle">Sorting garden</h2>
+          <p>Sort by one property at a time. Tap an item, then tap its matching basket.</p>
         </div>
-        <div class="choice-grid" role="group" aria-label="Choose a shape">
-          <button class="choice" data-value="circle">
-            <span class="shape circle"></span><span>Circle</span></button
-          ><button class="choice" data-value="square">
-            <span class="shape square"></span><span>Square</span></button
-          ><button class="choice" data-value="triangle">
-            <span class="shape triangle"></span><span>Triangle</span></button
-          ><button class="choice" data-value="star">
-            <span class="shape star">★</span><span>Star</span>
-          </button>
+      </div>
+
+      <div class="sort-mode" role="group" aria-label="Choose sorting rule">
+        <button class="mode-btn selected" data-mode="shape" aria-pressed="true">Sort by shape</button>
+        <button class="mode-btn" data-mode="colour" aria-pressed="false">Sort by colour</button>
+      </div>
+
+      <div id="sortItems" class="sort-items" aria-label="Items to sort"></div>
+      <div id="sortBaskets" class="basket-grid" aria-label="Sorting baskets"></div>
+      <p class="feedback" id="sortFeedback" aria-live="polite"></p>
+    </section>
+
+    <section class="card wide" id="countActivity" aria-labelledby="countTitle">
+      <div class="heading-row">
+        <span class="step">3</span>
+        <div>
+          <h2 id="countTitle">Count 1, 2, 3</h2>
+          <p>Watch the flowers light up in order, then choose the matching collection.</p>
         </div>
-        <p class="result" aria-live="polite"></p>
-      </section>
-      <section id="colour-match" class="activity">
-        <div class="activity-head">
-          <span class="number">2</span>
-          <div>
-            <h2>Colour bloom</h2>
-            <p>Match the flower pot to the same colour.</p>
-          </div>
-        </div>
-        <div class="colour-target" aria-label="Target colour"></div>
-        <div class="swatches" role="group" aria-label="Choose a colour">
-          <button class="swatch red" data-value="red" aria-label="Red"></button
-          ><button
-            class="swatch blue"
-            data-value="blue"
-            aria-label="Blue"
-          ></button
-          ><button
-            class="swatch yellow"
-            data-value="yellow"
-            aria-label="Yellow"
-          ></button
-          ><button
-            class="swatch green"
-            data-value="green"
-            aria-label="Green"
-          ></button>
-        </div>
-        <p class="result" aria-live="polite"></p>
-      </section>
-      <section id="sorting" class="activity wide">
-        <div class="activity-head">
-          <span class="number">3</span>
-          <div>
-            <h2>Sorting beds</h2>
-            <p>
-              Sort each card into the right garden bed. Drag it, or select with
-              Enter/Space and then choose a bed.
-            </p>
-          </div>
-        </div>
-        <div class="cards">
-          <button id="card1" class="sort-card" data-group="shape">
-            ▲ Triangle</button
-          ><button id="card2" class="sort-card" data-group="colour">
-            ● Blue</button
-          ><button id="card3" class="sort-card" data-group="shape">
-            ■ Square</button
-          ><button id="card4" class="sort-card" data-group="colour">
-            ● Yellow
-          </button>
-        </div>
-        <div class="zones">
-          <button class="sort-zone" data-group="shape">
-            <strong>Shapes bed</strong><span>Put shape cards here</span></button
-          ><button class="sort-zone" data-group="colour">
-            <strong>Colours bed</strong><span>Put colour cards here</span>
-          </button>
-        </div>
-        <p class="result" aria-live="polite"></p>
-      </section>
-    </main>
-    <footer>
-      <button id="reset" class="reset">↻ New garden</button>
-      <p>No accounts, ads, tracking or personal data.</p>
-    </footer>
-    <script type="module" src="app.js"></script>
-  </body>
+      </div>
+
+      <div id="countSequence" class="count-sequence" aria-label="Counting sequence"></div>
+
+      <div class="count-choices" role="group" aria-label="Choose how many flowers">
+        <button class="count-choice" data-count="1" aria-label="One flower">🌼</button>
+        <button class="count-choice" data-count="2" aria-label="Two flowers">🌼 🌼</button>
+        <button class="count-choice" data-count="3" aria-label="Three flowers">🌼 🌼 🌼</button>
+      </div>
+
+      <button id="showCount" class="show-btn">▶ Show me again</button>
+      <p class="feedback" id="countFeedback" aria-live="polite"></p>
+    </section>
+
+    <aside class="grown-up wide">
+      <h2>Grown-up guide</h2>
+      <p>Invite the child to point, tap, or say what they notice. Wrong answers only get a gentle cue and unlimited retry. Every spoken prompt is also shown visually.</p>
+    </aside>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
 </html>
